@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Pelayanan Digital Kampus | n8n × ChatGPT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --navy: #0B1F4B;
+    --blue: #1A56DB;
+    --sky: #3B82F6;
+    --light-blue: #EFF6FF;
+    --accent: #06B6D4;
+    --accent-light: #ECFEFF;
+    --white: #FFFFFF;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-400: #94A3B8;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --success: #10B981;
+    --shadow-sm: 0 1px 3px rgba(11,31,75,0.08), 0 1px 2px rgba(11,31,75,0.04);
+    --shadow-md: 0 4px 16px rgba(11,31,75,0.10), 0 2px 6px rgba(11,31,75,0.06);
+    --shadow-lg: 0 12px 32px rgba(11,31,75,0.13), 0 4px 12px rgba(11,31,75,0.08);
+    --shadow-xl: 0 24px 48px rgba(11,31,75,0.16);
+    --radius: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    color: var(--gray-800);
+    background: var(--white);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: box-shadow .3s;
+  }
+  nav.scrolled { box-shadow: var(--shadow-md); }
+
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 15px;
+    color: var(--navy); text-decoration: none;
+  }
+  .nav-logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .nav-links { display: flex; gap: 4px; }
+  .nav-links a {
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--gray-600); text-decoration: none;
+    transition: background .2s, color .2s;
+  }
+  .nav-links a:hover { background: var(--light-blue); color: var(--blue); }
+
+  .nav-cta {
+    background: var(--blue); color: white !important;
+    padding: 8px 18px !important; border-radius: 8px !important;
+    font-weight: 600 !important; font-size: 13px !important;
+    transition: background .2s, transform .15s !important;
+  }
+  .nav-cta:hover { background: var(--navy) !important; transform: translateY(-1px); }
+
+  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; }
+  .hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--navy); border-radius: 2px; margin: 5px 0;
+    transition: .3s;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    background: linear-gradient(150deg, var(--navy) 0%, #0D2A6B 45%, #0E3A8C 70%, #1345A8 100%);
+    display: flex; align-items: center;
+    padding: 100px 24px 60px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0; opacity: .06;
+    background-image:
+      linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .hero-glow {
+    position: absolute; border-radius: 50%; filter: blur(90px); opacity: .18;
+    pointer-events: none;
+  }
+  .glow-1 { width: 500px; height: 500px; background: var(--accent); top: -120px; right: -80px; }
+  .glow-2 { width: 360px; height: 360px; background: var(--sky); bottom: 0; left: 10%; }
+
+  .hero-inner {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 420px; gap: 64px; align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(6,182,212,.18); border: 1px solid rgba(6,182,212,.35);
+    color: #67E8F9; border-radius: 100px;
+    padding: 6px 14px; font-size: 12.5px; font-weight: 600;
+    margin-bottom: 24px; letter-spacing: .3px;
+  }
+  .badge-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #67E8F9; animation: pulse-dot 1.8s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(.7); }
+  }
+
+  .hero-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(32px, 4.5vw, 56px);
+    font-weight: 800; line-height: 1.13;
+    color: white; margin-bottom: 20px;
+    letter-spacing: -.5px;
+  }
+  .hero-title span { color: #67E8F9; }
+
+  .hero-sub {
+    font-size: clamp(14px, 1.6vw, 17px);
+    color: rgba(255,255,255,.72);
+    max-width: 520px; margin-bottom: 36px; line-height: 1.7;
+  }
+
+  .hero-btns { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: transform .2s, box-shadow .2s, background .2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary {
+    background: var(--accent); color: white;
+    box-shadow: 0 4px 18px rgba(6,182,212,.4);
+  }
+  .btn-primary:hover { background: #0891B2; box-shadow: 0 6px 24px rgba(6,182,212,.5); }
+  .btn-outline {
+    background: rgba(255,255,255,.1); color: white;
+    border: 1px solid rgba(255,255,255,.3);
+  }
+  .btn-outline:hover { background: rgba(255,255,255,.18); }
+  .btn-ghost {
+    background: transparent; color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .btn-ghost:hover { color: white; border-color: rgba(255,255,255,.4); }
+
+  .hero-stats {
+    display: flex; gap: 28px; flex-wrap: wrap;
+  }
+  .stat {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-val {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px; font-weight: 800; color: white; line-height: 1;
+  }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,.55); font-weight: 500; }
+
+  /* hero card */
+  .hero-card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    backdrop-filter: blur(12px);
+  }
+  .hero-card-title {
+    color: rgba(255,255,255,.6); font-size: 11px; font-weight: 600;
+    letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .flow-mini { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 16px; border-radius: 10px;
+    background: rgba(255,255,255,.06);
+    margin-bottom: 4px;
+    border: 1px solid rgba(255,255,255,.09);
+    transition: background .25s;
+  }
+  .flow-step:hover { background: rgba(255,255,255,.1); }
+  .flow-icon {
+    width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .flow-step-label { font-size: 13px; color: rgba(255,255,255,.85); font-weight: 500; }
+  .flow-step-sub { font-size: 11px; color: rgba(255,255,255,.45); }
+  .flow-arrow {
+    text-align: center; color: rgba(255,255,255,.25);
+    font-size: 13px; line-height: 1; margin: 2px 0;
+    padding-left: 24px;
+  }
+
+  /* ── SECTIONS COMMON ── */
+  section { padding: 88px 24px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--blue);
+    background: var(--light-blue); padding: 5px 12px; border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 800; color: var(--navy); line-height: 1.2;
+    margin-bottom: 14px; letter-spacing: -.3px;
+  }
+  .section-desc {
+    color: var(--gray-600); font-size: 16px; max-width: 580px; line-height: 1.7;
+  }
+  .section-header { margin-bottom: 52px; }
+
+  /* ── ABOUT ── */
+  #tentang { background: var(--gray-50); }
+
+  .about-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    margin-top: 48px;
+  }
+  .about-card {
+    background: white; border-radius: var(--radius-lg);
+    padding: 32px 28px; border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .about-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .about-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 20px;
+  }
+  .icon-blue { background: var(--light-blue); }
+  .icon-cyan { background: var(--accent-light); }
+  .icon-navy { background: #EEF2FF; }
+  .about-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px; font-weight: 700; color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .about-card p { font-size: 14px; color: var(--gray-600); line-height: 1.7; }
+
+  /* ── ARCHITECTURE ── */
+  #arsitektur { background: white; }
+
+  .arch-flow {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--gray-50); border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200);
+    overflow: hidden; flex-wrap: wrap;
+  }
+
+  .arch-node {
+    flex: 1; min-width: 130px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 36px 20px; text-align: center;
+    position: relative; transition: background .25s;
+  }
+  .arch-node:hover { background: white; }
+
+  .arch-node:not(:last-child)::after {
+    content: '→';
+    position: absolute; right: -14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px; color: var(--blue); z-index: 2;
+    font-weight: 700; line-height: 1;
+  }
+
+  .arch-node-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .arch-node-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 700; color: var(--navy);
+    margin-bottom: 5px;
+  }
+  .arch-node-sub { font-size: 11.5px; color: var(--gray-400); line-height: 1.4; }
+
+  .arch-note {
+    margin-top: 28px; padding: 18px 24px;
+    background: var(--light-blue); border-radius: var(--radius);
+    border-left: 4px solid var(--blue);
+    font-size: 14px; color: var(--gray-600); line-height: 1.6;
+  }
+  .arch-note strong { color: var(--blue); }
+
+  /* ── WORKFLOW ── */
+  #workflow { background: var(--navy); }
+
+  #workflow .section-eyebrow { background: rgba(255,255,255,.1); color: #67E8F9; }
+  #workflow .section-title { color: white; }
+  #workflow .section-desc { color: rgba(255,255,255,.6); }
+
+  .workflow-steps {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    position: relative; margin-top: 52px;
+  }
+  .workflow-steps::before {
+    content: '';
+    position: absolute; top: 36px; left: 10%; right: 10%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--sky), var(--blue));
+    z-index: 0;
+  }
+
+  .wf-step {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 0 12px; position: relative; z-index: 1;
+  }
+  .wf-num {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--blue));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin-bottom: 20px;
+    box-shadow: 0 0 0 6px rgba(6,182,212,.15), var(--shadow-md);
+  }
+  .wf-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13.5px; font-weight: 700; color: white;
+    margin-bottom: 8px; line-height: 1.3;
+  }
+  .wf-desc { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.6; }
+
+  /* ── SERVICES ── */
+  #layanan { background: var(--gray-50); }
+
+  .services-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+  }
+  .service-card {
+    background: white; border-radius: var(--radius-lg);
+    padding: 32px; border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    display: flex; gap: 22px;
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+    cursor: default;
+  }
+  .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--sky); }
+  .service-icon {
+    width: 56px; height: 56px; flex-shrink: 0; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .service-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 8px;
+  }
+  .service-card p { font-size: 13.5px; color: var(--gray-600); line-height: 1.7; margin-bottom: 14px; }
+  .service-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+  }
+  .tag-available { background: #D1FAE5; color: #065F46; }
+
+  /* ── CHATBOT ── */
+  #chatbot { background: white; }
+
+  .chat-wrapper {
+    max-width: 700px; margin: 0 auto;
+  }
+  .chat-window {
+    background: var(--gray-50); border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200); overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .chat-header {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    padding: 18px 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .chat-avatar {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .chat-header-info { flex: 1; }
+  .chat-header-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 700; color: white;
+  }
+  .chat-header-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: rgba(255,255,255,.65);
+  }
+  .status-online {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #34D399; animation: pulse-dot 2s infinite;
+  }
+
+  .chat-messages {
+    padding: 24px; min-height: 300px; max-height: 380px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+  .msg { display: flex; gap: 10px; max-width: 85%; animation: msg-in .3s ease; }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+  .msg-bot { align-self: flex-start; }
+  .msg-user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .msg-bot .msg-avatar { background: var(--light-blue); }
+  .msg-user .msg-avatar { background: var(--blue); }
+
+  .msg-bubble {
+    padding: 11px 16px; border-radius: 14px;
+    font-size: 14px; line-height: 1.6;
+  }
+  .msg-bot .msg-bubble {
+    background: white; color: var(--gray-800);
+    border: 1px solid var(--gray-200);
+    border-bottom-left-radius: 4px;
+    box-shadow: var(--shadow-sm);
+  }
+  .msg-user .msg-bubble {
+    background: var(--blue); color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-time { font-size: 10.5px; color: var(--gray-400); margin-top: 4px; }
+
+  .chat-input-row {
+    padding: 16px; border-top: 1px solid var(--gray-200);
+    display: flex; gap: 10px; background: white;
+  }
+  .chat-input {
+    flex: 1; padding: 12px 16px; border-radius: 10px;
+    border: 1.5px solid var(--gray-200); font-size: 14px;
+    font-family: 'Inter', sans-serif; outline: none; color: var(--gray-800);
+    background: var(--gray-50);
+    transition: border-color .2s;
+  }
+  .chat-input:focus { border-color: var(--blue); background: white; }
+  .chat-input::placeholder { color: var(--gray-400); }
+  .chat-send {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--blue); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px; flex-shrink: 0;
+    transition: background .2s, transform .15s;
+  }
+  .chat-send:hover { background: var(--navy); transform: scale(1.05); }
+  .chat-send:active { transform: scale(.95); }
+
+  .chat-hints {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px;
+  }
+  .hint-chip {
+    background: var(--light-blue); color: var(--blue);
+    border: 1px solid #BFDBFE; border-radius: 100px;
+    padding: 7px 14px; font-size: 12.5px; font-weight: 500;
+    cursor: pointer; transition: background .2s, transform .15s;
+  }
+  .hint-chip:hover { background: var(--blue); color: white; transform: translateY(-1px); }
+
+  /* ── TESTING ── */
+  #pengujian { background: var(--gray-50); }
+
+  .test-table-wrap {
+    background: white; border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200); overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    max-width: 700px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--navy); }
+  thead th {
+    padding: 16px 24px; text-align: left;
+    color: white; font-size: 13px; font-weight: 600;
+    letter-spacing: .3px;
+  }
+  tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--gray-50); }
+  tbody td { padding: 16px 24px; font-size: 14px; color: var(--gray-800); }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #D1FAE5; color: #065F46;
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 12.5px; font-weight: 600;
+  }
+  .check-icon { font-size: 12px; }
+
+  /* ── EVALUATION ── */
+  #evaluasi { background: linear-gradient(135deg, var(--light-blue), var(--accent-light)); }
+
+  .eval-box {
+    max-width: 680px; margin: 0 auto;
+    background: white; border-radius: var(--radius-xl);
+    padding: 52px 48px; text-align: center;
+    box-shadow: var(--shadow-xl); border: 1px solid var(--gray-200);
+  }
+  .eval-icon { font-size: 52px; margin-bottom: 20px; }
+  .eval-box h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px; font-weight: 800; color: var(--navy);
+    margin-bottom: 14px;
+  }
+  .eval-box p { font-size: 15px; color: var(--gray-600); line-height: 1.7; margin-bottom: 32px; }
+  .eval-points {
+    display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .eval-point {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .eval-point span:first-child {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 28px; font-weight: 800; color: var(--blue);
+  }
+  .eval-point span:last-child { font-size: 12px; color: var(--gray-400); font-weight: 500; }
+  .btn-survey {
+    background: linear-gradient(135deg, var(--blue), var(--accent));
+    color: white; padding: 15px 36px; border-radius: 12px;
+    font-size: 15px; font-weight: 700; border: none; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(26,86,219,.35);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-survey:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(26,86,219,.45); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    padding: 48px 24px 32px;
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 32px; flex-wrap: wrap; margin-bottom: 40px;
+    padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .footer-brand { max-width: 340px; }
+  .footer-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .footer-logo-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 14px;
+  }
+  .footer-logo span {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 15px; color: white;
+  }
+  .footer-tagline { font-size: 13.5px; color: rgba(255,255,255,.55); line-height: 1.7; }
+  .footer-tech {
+    display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .tech-chip {
+    font-size: 11.5px; font-weight: 600; padding: 4px 10px;
+    border-radius: 6px; border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.6);
+  }
+
+  .footer-links h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700; color: rgba(255,255,255,.9);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .footer-links a {
+    font-size: 13.5px; color: rgba(255,255,255,.5);
+    text-decoration: none; transition: color .2s;
+  }
+  .footer-links a:hover { color: rgba(255,255,255,.9); }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .footer-copy { font-size: 12.5px; color: rgba(255,255,255,.35); }
+  .footer-rd {
+    font-size: 12px; color: rgba(255,255,255,.35);
+    background: rgba(255,255,255,.06); padding: 5px 12px; border-radius: 6px;
+  }
+
+  /* ── SCROLL TOP ── */
+  #scrollTop {
+    position: fixed; bottom: 28px; right: 28px; z-index: 99;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--blue); color: white;
+    border: none; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .3s, transform .2s;
+    box-shadow: var(--shadow-md);
+  }
+  #scrollTop.visible { opacity: 1; pointer-events: auto; }
+  #scrollTop:hover { transform: translateY(-3px); background: var(--navy); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .about-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .workflow-steps { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .workflow-steps::before { display: none; }
+    .arch-flow { flex-direction: column; }
+    .arch-node:not(:last-child)::after { content: '↓'; right: auto; top: auto; bottom: -18px; left: 50%; transform: translateX(-50%); }
+    .arch-node { padding: 24px 20px; }
+    .wf-step { padding: 0 8px; }
+    .footer-top { flex-direction: column; }
+    .eval-box { padding: 36px 28px; }
+    .nav-links { display: none; }
+    .hamburger { display: block; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: absolute; top: 64px; left: 0; right: 0;
+      background: white; border-bottom: 1px solid var(--gray-200);
+      padding: 16px; box-shadow: var(--shadow-md);
+    }
+  }
+
+  @media (max-width: 560px) {
+    section { padding: 64px 16px; }
+    .workflow-steps { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+    .eval-points { flex-direction: column; align-items: center; }
+  }
+
+  /* typing indicator */
+  .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 6px; }
+  .typing-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--gray-400);
+    animation: typing 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .2s; }
+  .typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing {
+    0%,60%,100% { transform: translateY(0); opacity: .4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#hero" class="nav-brand">
+    <div class="nav-logo">SP</div>
+    <span>SiPelDik</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#tentang">Tentang</a>
+    <a href="#arsitektur">Arsitektur</a>
+    <a href="#layanan">Layanan</a>
+    <a href="#chatbot">Demo</a>
+    <a href="#pengujian">Pengujian</a>
+    <a href="#chatbot" class="nav-cta">Demo Chatbot</a>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow glow-1"></div>
+  <div class="hero-glow glow-2"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="badge-dot"></div>
+        Prototipe Penelitian R&D Aktif
+      </div>
+      <h1 class="hero-title">
+        Sistem Pelayanan<br>
+        Digital <span>Kampus</span>
+      </h1>
+      <p class="hero-sub">
+        Integrasi n8n dan ChatGPT untuk Mendukung Transformasi Digital Layanan Akademik yang cepat, cerdas, dan mudah diakses oleh seluruh mahasiswa.
+      </p>
+      <div class="hero-btns">
+        <a href="#chatbot" class="btn btn-primary">💬 Demo Chatbot</a>
+        <a href="#layanan" class="btn btn-outline">📚 Lihat Layanan</a>
+        <a href="#tentang" class="btn btn-ghost">ℹ️ Tentang Sistem</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-val">4</span>
+          <span class="stat-label">Layanan Akademik</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">24/7</span>
+          <span class="stat-label">Tersedia Otomatis</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">n8n</span>
+          <span class="stat-label">Workflow Engine</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">GPT</span>
+          <span class="stat-label">AI Processor</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-card-title">⚡ Alur Sistem Real-time</div>
+      <div class="flow-mini">
+        <div class="flow-step">
+          <div class="flow-icon icon-blue">👨‍🎓</div>
+          <div>
+            <div class="flow-step-label">Mahasiswa</div>
+            <div class="flow-step-sub">Mengirim pertanyaan</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon icon-cyan">💬</div>
+          <div>
+            <div class="flow-step-label">Telegram / WhatsApp</div>
+            <div class="flow-step-sub">Platform pesan</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon icon-navy">⚙️</div>
+          <div>
+            <div class="flow-step-label">n8n Workflow</div>
+            <div class="flow-step-sub">Otomasi & routing</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon icon-blue">🤖</div>
+          <div>
+            <div class="flow-step-label">ChatGPT</div>
+            <div class="flow-step-sub">Proses AI</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-icon icon-cyan">🗄️</div>
+          <div>
+            <div class="flow-step-label">Database Akademik</div>
+            <div class="flow-step-sub">Data mahasiswa</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="tentang">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Tentang Sistem</span>
+      <h2 class="section-title">Teknologi di Balik<br>Layanan Digital Kampus</h2>
+      <p class="section-desc">Sistem ini menggabungkan kekuatan workflow automation dan kecerdasan buatan untuk memberikan pengalaman layanan akademik terbaik bagi mahasiswa.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon icon-navy">⚙️</div>
+        <h3>n8n Workflow Automation</h3>
+        <p>n8n berfungsi sebagai mesin orkestrasi yang menghubungkan seluruh komponen sistem. Ia menerima pesan dari Telegram/WhatsApp, meneruskan ke ChatGPT, mengambil data dari database, dan mengirimkan balasan—semua secara otomatis tanpa intervensi manual.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon icon-blue">🤖</div>
+        <h3>ChatGPT AI Processing</h3>
+        <p>ChatGPT digunakan untuk memahami maksud dan konteks pertanyaan mahasiswa dalam bahasa alami. Model ini mampu menginterpretasikan berbagai variasi pertanyaan dan menghasilkan respons yang relevan, akurat, serta ramah pengguna.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon icon-cyan">🎯</div>
+        <h3>Tujuan Sistem</h3>
+        <p>Sistem dirancang khusus untuk membantu mahasiswa memperoleh informasi akademik secara cepat, tepat, dan mudah tanpa perlu datang langsung ke kantor administrasi. Tersedia 24 jam sehari melalui platform pesan yang sudah familiar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="arsitektur">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Diagram Arsitektur</span>
+      <h2 class="section-title">Alur Arsitektur Sistem<br>Secara Keseluruhan</h2>
+      <p class="section-desc">Visualisasi lengkap bagaimana setiap komponen sistem bekerja sama dari pesan mahasiswa hingga balasan yang diterima.</p>
+    </div>
+
+    <div class="arch-flow">
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#EFF6FF">👨‍🎓</div>
+        <div class="arch-node-label">Mahasiswa</div>
+        <div class="arch-node-sub">Mengirim pertanyaan akademik</div>
+      </div>
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#F0FDF4">💬</div>
+        <div class="arch-node-label">Telegram / WhatsApp</div>
+        <div class="arch-node-sub">Platform komunikasi</div>
+      </div>
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#ECFDF5">⚙️</div>
+        <div class="arch-node-label">n8n</div>
+        <div class="arch-node-sub">Workflow automation & routing</div>
+      </div>
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#F5F3FF">🤖</div>
+        <div class="arch-node-label">ChatGPT</div>
+        <div class="arch-node-sub">AI processing & NLP</div>
+      </div>
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#FFF7ED">🗄️</div>
+        <div class="arch-node-label">Database Akademik</div>
+        <div class="arch-node-sub">Data & informasi kampus</div>
+      </div>
+      <div class="arch-node">
+        <div class="arch-node-icon" style="background:#EFF6FF">📩</div>
+        <div class="arch-node-label">Balasan</div>
+        <div class="arch-node-sub">Respons dikirim ke mahasiswa</div>
+      </div>
+    </div>
+
+    <div class="arch-note">
+      <strong>Catatan Teknis:</strong> Semua komunikasi antar komponen menggunakan API berbasis REST/Webhook. n8n bertindak sebagai middleware yang memastikan setiap pesan diproses secara berurutan dan hasilnya dikembalikan dalam hitungan detik ke pengguna.
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Workflow Sistem</span>
+      <h2 class="section-title">Bagaimana Sistem Bekerja</h2>
+      <p class="section-desc">Lima tahap pemrosesan yang terjadi secara otomatis setiap kali mahasiswa mengirimkan pertanyaan ke sistem.</p>
+    </div>
+
+    <div class="workflow-steps">
+      <div class="wf-step">
+        <div class="wf-num">📤</div>
+        <div class="wf-title">Pengguna Mengirim Pesan</div>
+        <div class="wf-desc">Mahasiswa mengetik pertanyaan melalui Telegram atau WhatsApp</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">⚡</div>
+        <div class="wf-title">n8n Menerima Pesan</div>
+        <div class="wf-desc">Webhook n8n menangkap pesan dan memulai alur workflow secara otomatis</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">🧠</div>
+        <div class="wf-title">ChatGPT Memproses</div>
+        <div class="wf-desc">AI memahami konteks pertanyaan dan menentukan respons yang tepat</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">📊</div>
+        <div class="wf-title">Sistem Menghasilkan Jawaban</div>
+        <div class="wf-desc">Data diambil dari database dan dikombinasikan dengan respons AI</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">📬</div>
+        <div class="wf-title">Jawaban Dikirim</div>
+        <div class="wf-desc">Balasan terformat dikirim kembali ke mahasiswa dalam hitungan detik</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="layanan">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Layanan Akademik</span>
+      <h2 class="section-title">Layanan yang Tersedia<br>di Sistem</h2>
+      <p class="section-desc">Empat layanan utama yang dapat diakses mahasiswa melalui chatbot, tersedia kapan saja dan di mana saja.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon" style="background:#EFF6FF">📋</div>
+        <div>
+          <h3>Informasi Akademik</h3>
+          <p>Menyediakan informasi akademik umum seperti kalender akademik, kebijakan kampus, prosedur administratif, dan pengumuman terkini dari institusi.</p>
+          <span class="service-tag tag-available">✓ Tersedia</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon" style="background:#F0FDF4">🗓️</div>
+        <div>
+          <h3>Jadwal Kuliah</h3>
+          <p>Menampilkan jadwal perkuliahan berdasarkan program studi dan semester. Mahasiswa dapat mengecek ruangan, dosen pengampu, dan waktu perkuliahan secara real-time.</p>
+          <span class="service-tag tag-available">✓ Tersedia</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon" style="background:#FFF7ED">📄</div>
+        <div>
+          <h3>Surat Aktif Kuliah</h3>
+          <p>Memberikan informasi lengkap tentang prosedur pengajuan surat keterangan aktif kuliah, persyaratan dokumen yang dibutuhkan, dan estimasi waktu pemrosesan.</p>
+          <span class="service-tag tag-available">✓ Tersedia</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon" style="background:#F5F3FF">💳</div>
+        <div>
+          <h3>Status UKT</h3>
+          <p>Menyediakan informasi mengenai status pembayaran Uang Kuliah Tunggal (UKT), tenggat pembayaran, jumlah tagihan, serta panduan prosedur pembayaran.</p>
+          <span class="service-tag tag-available">✓ Tersedia</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHATBOT -->
+<section id="chatbot">
+  <div class="section-inner">
+    <div class="section-header" style="text-align:center; max-width:600px; margin:0 auto 52px;">
+      <span class="section-eyebrow">Demo Interaktif</span>
+      <h2 class="section-title">Coba Demo Chatbot<br>Sekarang</h2>
+      <p class="section-desc">Simulasikan percakapan dengan sistem layanan digital kampus. Ketik pertanyaan Anda di bawah ini.</p>
+    </div>
+
+    <div class="chat-wrapper">
+      <div class="chat-window">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div class="chat-header-info">
+            <div class="chat-header-name">SiPelDik Bot</div>
+            <div class="chat-header-status">
+              <div class="status-online"></div>
+              Online · Powered by n8n & ChatGPT
+            </div>
+          </div>
+          <span style="color:rgba(255,255,255,.5);font-size:12px;">Demo Mode</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg msg-bot">
+            <div class="msg-avatar">🤖</div>
+            <div>
+              <div class="msg-bubble">
+                Halo! Selamat datang di <strong>SiPelDik</strong> — Sistem Pelayanan Digital Kampus. 👋<br><br>
+                Saya siap membantu Anda mendapatkan informasi akademik. Ketik pertanyaan Anda atau pilih topik di bawah.
+              </div>
+              <div class="msg-time">Sekarang</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput"
+            placeholder="Ketik pertanyaan Anda... (cth: jadwal kuliah)"
+            autocomplete="off">
+          <button class="chat-send" id="chatSend" title="Kirim">➤</button>
+        </div>
+      </div>
+
+      <div class="chat-hints">
+        <span style="font-size:12px;color:var(--gray-400);align-self:center;font-weight:500;">Coba tanya:</span>
+        <div class="hint-chip" onclick="sendHint('jadwal kuliah')">🗓️ Jadwal Kuliah</div>
+        <div class="hint-chip" onclick="sendHint('surat aktif')">📄 Surat Aktif</div>
+        <div class="hint-chip" onclick="sendHint('ukt')">💳 Status UKT</div>
+        <div class="hint-chip" onclick="sendHint('informasi akademik')">📋 Info Akademik</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTING -->
+<section id="pengujian">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Hasil Pengujian</span>
+      <h2 class="section-title">Laporan Pengujian<br>Fungsional Sistem</h2>
+      <p class="section-desc">Hasil uji coba fitur-fitur utama sistem yang telah dilakukan dalam rangkaian pengujian prototipe R&D.</p>
+    </div>
+
+    <div class="test-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Fitur yang Diuji</th>
+            <th>Deskripsi</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--gray-400);font-weight:600;">01</td>
+            <td><strong>Informasi Akademik</strong></td>
+            <td style="color:var(--gray-600)">Respons informasi umum akademik kampus</td>
+            <td><span class="status-badge"><span class="check-icon">✓</span> Berhasil</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--gray-400);font-weight:600;">02</td>
+            <td><strong>Jadwal Kuliah</strong></td>
+            <td style="color:var(--gray-600)">Query dan tampilan jadwal perkuliahan</td>
+            <td><span class="status-badge"><span class="check-icon">✓</span> Berhasil</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--gray-400);font-weight:600;">03</td>
+            <td><strong>Surat Aktif Kuliah</strong></td>
+            <td style="color:var(--gray-600)">Informasi prosedur pengajuan surat aktif</td>
+            <td><span class="status-badge"><span class="check-icon">✓</span> Berhasil</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--gray-400);font-weight:600;">04</td>
+            <td><strong>Status UKT</strong></td>
+            <td style="color:var(--gray-600)">Pengecekan informasi pembayaran UKT</td>
+            <td><span class="status-badge"><span class="check-icon">✓</span> Berhasil</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- EVALUATION -->
+<section id="evaluasi">
+  <div class="section-inner">
+    <div class="eval-box">
+      <div class="eval-icon">📊</div>
+      <h3>Evaluasi Pengguna</h3>
+      <p>Bantu penelitian ini dengan mengisi kuesioner evaluasi. Respons Anda sangat berarti untuk pengembangan sistem pelayanan digital kampus yang lebih baik ke depannya.</p>
+      <div class="eval-points">
+        <div class="eval-point">
+          <span>5 min</span>
+          <span>Waktu Pengisian</span>
+        </div>
+        <div class="eval-point">
+          <span>12</span>
+          <span>Pertanyaan</span>
+        </div>
+        <div class="eval-point">
+          <span>100%</span>
+          <span>Anonim</span>
+        </div>
+      </div>
+      <a href="https://forms.google.com" target="_blank" class="btn-survey">
+        📝 Isi Kuesioner Evaluasi
+        <span style="font-size:12px;opacity:.75;">Google Form</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">SP</div>
+          <span>SiPelDik</span>
+        </div>
+        <p class="footer-tagline">
+          Prototipe Penelitian R&D Integrasi n8n dan ChatGPT untuk Pelayanan Digital Kampus. Dikembangkan sebagai bagian dari penelitian transformasi digital layanan akademik.
+        </p>
+        <div class="footer-tech">
+          <span class="tech-chip">n8n</span>
+          <span class="tech-chip">ChatGPT</span>
+          <span class="tech-chip">Telegram</span>
+          <span class="tech-chip">WhatsApp</span>
+          <span class="tech-chip">R&D</span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4>Navigasi</h4>
+        <ul>
+          <li><a href="#tentang">Tentang Sistem</a></li>
+          <li><a href="#arsitektur">Arsitektur</a></li>
+          <li><a href="#workflow">Workflow</a></li>
+          <li><a href="#layanan">Layanan</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Fitur</h4>
+        <ul>
+          <li><a href="#chatbot">Demo Chatbot</a></li>
+          <li><a href="#pengujian">Hasil Pengujian</a></li>
+          <li><a href="#evaluasi">Kuesioner</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 Sistem Pelayanan Digital Kampus. Prototipe R&D.</p>
+      <span class="footer-rd">Prototipe Penelitian R&D — Integrasi n8n & ChatGPT untuk Pelayanan Digital Kampus</span>
+    </div>
+  </div>
+</footer>
+
+<!-- SCROLL TOP -->
+<button id="scrollTop" title="Kembali ke atas" aria-label="Scroll ke atas">↑</button>
+
+<script>
+  // ── NAV SCROLL ──
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+    document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 300);
+  });
+
+  // ── HAMBURGER ──
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+  });
+
+  // ── SCROLL TOP ──
+  document.getElementById('scrollTop').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ── CHATBOT ──
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+
+  function getTime() {
+    return new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addMessage(text, isUser = false) {
+    const msg = document.createElement('div');
+    msg.className = `msg ${isUser ? 'msg-user' : 'msg-bot'}`;
+    msg.innerHTML = `
+      <div class="msg-avatar">${isUser ? '👤' : '🤖'}</div>
+      <div>
+        <div class="msg-bubble">${text}</div>
+        <div class="msg-time">${getTime()}</div>
+      </div>`;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showTyping() {
+    const typing = document.createElement('div');
+    typing.className = 'msg msg-bot';
+    typing.id = 'typing';
+    typing.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div>
+        <div class="msg-bubble" style="padding:10px 16px">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>`;
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  function getBotReply(input) {
+    const q = input.toLowerCase().trim();
+    if (q.includes('jadwal kuliah') || q === 'jadwal') {
+      return '🗓️ <strong>Jadwal Kuliah</strong><br><br>Jadwal kuliah dapat dilihat melalui portal akademik kampus. Pastikan Anda login menggunakan NIM dan password yang terdaftar.';
+    } else if (q.includes('surat aktif') || q.includes('surat keterangan')) {
+      return '📄 <strong>Surat Aktif Kuliah</strong><br><br>Silakan mengajukan surat aktif melalui menu layanan administrasi akademik. Persiapkan KTM dan KRS semester berjalan sebagai persyaratan.';
+    } else if (q.includes('ukt') || q.includes('biaya kuliah') || q.includes('pembayaran')) {
+      return '💳 <strong>Status UKT</strong><br><br>Status UKT dapat diperiksa melalui sistem informasi akademik. Masuk dengan akun mahasiswa Anda dan pilih menu Keuangan.';
+    } else if (q.includes('informasi akademik') || q.includes('info akademik')) {
+      return '📋 <strong>Informasi Akademik</strong><br><br>Informasi akademik umum meliputi kalender akademik, prosedur administrasi, dan pengumuman kampus tersedia di portal resmi akademik.';
+    } else {
+      return '🙏 Terima kasih atas pertanyaan Anda. Pertanyaan Anda akan diteruskan ke layanan akademik untuk ditindaklanjuti lebih lanjut. Silakan hubungi kami juga melalui kontak resmi kampus.';
+    }
+  }
+
+  function sendMessage() {
+    const val = chatInput.value.trim();
+    if (!val) return;
+    addMessage(val, true);
+    chatInput.value = '';
+    chatInput.disabled = true;
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      addMessage(getBotReply(val));
+      chatInput.disabled = false;
+      chatInput.focus();
+    }, 1100 + Math.random() * 600);
+  }
+
+  function sendHint(text) {
+    chatInput.value = text;
+    sendMessage();
+  }
+
+  document.getElementById('chatSend').addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+  // ── SCROLL REVEAL ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.about-card, .service-card, .wf-step, .arch-node').forEach(el => {
+    el.style.cssText += 'opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
